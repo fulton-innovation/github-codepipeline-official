@@ -29,14 +29,6 @@ Parameters:
     Default: github-codepipeline-application
     AllowedPattern: "[A-Za-z0-9-]+"
 
-  TestAccountID:
-    Type: String
-    Description: AWS Account ID for the Test account
-
-  ProductionAccountID:
-    Type: String
-    Description: AWS Account ID for the Production (root) account
-
 Resources:
   PipelineArtifactsBucket:
     Type: AWS::S3::Bucket

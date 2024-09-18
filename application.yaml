@@ -7,3 +7,86 @@ Description: github-codepipeline-app
 Resources:
   ApplicationBucket:
     Type: AWS::S3::Bucket
+    
+  MonthlyBudget:
+    Type: AWS::Budgets::Budget
+    Properties: 
+      Budget: 
+        BudgetLimit: 
+          Amount: 50.00
+          Unit: "USD"
+        BudgetName: "MonthlyBudgetName1"
+        BudgetType: "COST"
+        CostTypes: 
+          IncludeCredit: false
+          IncludeDiscount: true
+          IncludeOtherSubscription: true
+          IncludeRecurring: true
+          IncludeRefund: false
+          IncludeSubscription: true
+          IncludeSupport: true
+          IncludeTax: true
+          IncludeUpfront: true
+          UseAmortized: false
+          UseBlended: false
+        TimeUnit: "MONTHLY"
+      NotificationsWithSubscribers:
+        - Notification:
+            NotificationType: ACTUAL
+            ComparisonOperator: GREATER_THAN
+            Threshold: 80
+          Subscribers:
+            - SubscriptionType: EMAIL
+              Address: ilynd1125@gmail.com
+        - Notification:
+            NotificationType: ACTUAL
+            ComparisonOperator: GREATER_THAN
+            Threshold: 100
+          Subscribers:
+            - SubscriptionType: EMAIL
+              Address: ilynd1125@gmail.com
+        - Notification:
+            NotificationType: FORECASTED
+            ComparisonOperator: GREATER_THAN
+            Threshold: 100
+          Subscribers:
+            - SubscriptionType: EMAIL
+              Address: ilynd1125@gmail.com
+
+  DailyBudget:
+    Type: AWS::Budgets::Budget
+    Properties: 
+      Budget: 
+        BudgetLimit: 
+          Amount: 5.00
+          Unit: "USD"
+        BudgetName: "DailyBudgetName1"
+        BudgetType: "COST"
+        CostTypes: 
+          IncludeCredit: false
+          IncludeDiscount: true
+          IncludeOtherSubscription: true
+          IncludeRecurring: true
+          IncludeRefund: false
+          IncludeSubscription: true
+          IncludeSupport: true
+          IncludeTax: true
+          IncludeUpfront: true
+          UseAmortized: false
+          UseBlended: false
+        TimeUnit: "DAILY"
+      NotificationsWithSubscribers:
+        - Notification:
+            NotificationType: ACTUAL
+            ComparisonOperator: GREATER_THAN
+            Threshold: 80
+          Subscribers:
+            - SubscriptionType: EMAIL
+              Address: ilynd1125@gmail.com
+        - Notification:
+            NotificationType: ACTUAL
+            ComparisonOperator: GREATER_THAN
+            Threshold: 100
+          Subscribers:
+            - SubscriptionType: EMAIL
+              Address: ilynd1125@gmail.com

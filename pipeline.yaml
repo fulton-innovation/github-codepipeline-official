@@ -83,7 +83,7 @@ Resources:
       # Build and Deploy, etc., stages would follow. Here is an example
       # Deploy to Test account stage
        - Name: DeployToTest
-        Actions:
+          Actions:
           - Name: CloudFormationDeployTest
             ActionTypeId:
               Category: Deploy

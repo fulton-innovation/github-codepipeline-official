@@ -37,7 +37,15 @@ Parameters:
     Type: String
     Default: github-codepipeline-app
     AllowedPattern: "[A-Za-z0-9-]+"
+    
+  TestAccountID:
+    Type: String
+    Description: AWS Account ID for the Test account
 
+  ProductionAccountID:
+    Type: String
+    Description: AWS Account ID for the Production (root) account
+    
 Resources:
   PipelineArtifactsBucket:
     Type: AWS::S3::Bucket
@@ -73,23 +81,66 @@ Resources:
             OAuthToken: !Ref GitHubOAuthToken
           RunOrder: 1
       # Build and Deploy, etc., stages would follow. Here is an example
-      - Name: Deploy
-        Actions:
-        - Name: CloudFormationDeploy
-          ActionTypeId:
-            Category: Deploy
-            Owner: AWS
-            Provider: CloudFormation
-            Version: '1'
-          InputArtifacts:
-            - Name: SourceCode
-          Configuration:
-            ActionMode: CREATE_UPDATE
-            Capabilities: CAPABILITY_IAM
-            RoleArn: !GetAtt CloudformationRole.Arn
-            StackName: !Ref ApplicationStackName
-            TemplatePath: !Sub "SourceCode::application.yaml"
-          RunOrder: 1
+      # Deploy to Test account stage
+         - Name: DeployToTest
+          Actions:
+            - Name: CloudFormationDeployTest
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: '1'
+              InputArtifacts:
+                - Name: SourceCode
+              Configuration:
+                ActionMode: CREATE_UPDATE
+                Capabilities: CAPABILITY_IAM
+                RoleArn: !GetAtt CloudformationRole.Arn
+                StackName: !Sub "${ApplicationStackName}-Test"
+                TemplatePath: !Sub "SourceCode::application.yaml"
+              RunOrder: 1
+
+        - Name: ManualApproval
+          Actions:
+            - Name: ApproveDeployment
+              ActionTypeId:
+                Category: Approval
+                Owner: AWS
+                Provider: Manual
+                Version: '1'
+              RunOrder: 1
+
+        - Name: DeleteTestStack
+          Actions:
+            - Name: CloudFormationDeleteTest
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: '1'
+              Configuration:
+                ActionMode: DELETE_ONLY
+                RoleArn: !GetAtt CloudformationRole.Arn
+                StackName: !Sub "${ApplicationStackName}-Test"
+              RunOrder: 1
+
+        - Name: DeployToProd
+          Actions:
+            - Name: CloudFormationDeployProd
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: '1'
+              InputArtifacts:
+                - Name: SourceCode
+              Configuration:
+                ActionMode: CREATE_UPDATE
+                Capabilities: CAPABILITY_IAM
+                RoleArn: !GetAtt CloudformationRole.Arn
+                StackName: !Ref ApplicationStackName
+                TemplatePath: !Sub "SourceCode::application.yaml"
+              RunOrder: 1
 
   # 'GithubWebhook' satisfies two requirements:
   # -- Means that updates are pushed from GitHub, rather than AWS having to poll
